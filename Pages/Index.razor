@@ -1,0 +1,23 @@
+﻿@page "/"
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from a service.</p>
+
+@if (testObject == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <p>testObject is on</p>
+}
+
+@code {
+    private object testObject;
+
+    protected override async Task OnInitializedAsync()
+    {
+        testObject = new object();
+    }
+}
