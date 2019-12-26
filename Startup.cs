@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Blazor.FileReader;
 
 namespace aspcoreeasyupload
 {
@@ -27,6 +28,13 @@ namespace aspcoreeasyupload
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            
+            services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
+            // services.AddFileReaderService(options => {
+            //     options.UseWasmSharedBuffer = true;
+            //     // The following is is a workaround for missing javascript file in Blazor 3.1 Preview 4 / ASP.NET Core 3.1.
+            //     options.InitializeOnFirstCall = true;
+            // });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

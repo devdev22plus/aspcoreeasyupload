@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BlazorInputFile" Version="0.1.0-preview-00002" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Tewr.Blazor.FileReader" Version="1.1.0.19274" />
   </ItemGroup>
 
 </Project>
