@@ -4,6 +4,11 @@
 @using Newtonsoft.Json
 @inject IJSRuntime JSRuntime
 @inject IConfiguration Configuration
+@*
+@inherits
+@implements
+*@
+
 @page "/"
 
 <div class="container">
@@ -19,7 +24,7 @@
         string paths = Common.GetDirParent(currentDir);
         string[] exPaths = Common.ExtractDirPath(paths);
 
-        <div class="col-md-12">
+        <div class="col-md-12" style="margin-bottom:100px;">
             <p>
                 Current Directory Path : @currentDir
             </p>
@@ -100,7 +105,7 @@
             {
                 <div class="border border-secondary p-3">
                     <p>Name: @file.Name</p>
-                    <p>Size in bytes: @file.Size</p>
+                    <p>Size in bytes: @file.Data.Position/@file.Size</p>
                     <p>Last modified date: @file.LastModified.ToShortDateString()</p>
                     <p>Content type: @file.Type</p>
                     <button @onclick="@(e => DeleteFile(file))" disabled="@isUploading">Delete</button>
@@ -207,11 +212,22 @@
                 using(var fileStream = File.OpenWrite(filePathTemp))
                 {
                     //Console.WriteLine(fileStream.Name);
+                    file.OnDataRead += (sender, eventArgs) => InvokeAsync(StateHasChanged);
+
+                    /*
+                    file.OnDataRead += (sender, eventArgs) => {
+                        status = $"Progresss {fileStream.Position}/{file.Size} bytes from {file.Name}";
+                        StateHasChanged();
+                    };
+                    */
                     
+                    /*
                     await file.Data.CopyToAsyncWithCallback(fileStream, x => {
                         status = $"Progresss {x}/{file.Size} bytes from {file.Name}";
                         StateHasChanged();
                     });
+                    */
+                    await file.Data.CopyToAsync(fileStream);
                 }
 
                 string p = GetCurrentPath(file.Name);
@@ -219,6 +235,9 @@
                 {
                     p = p.Remove(0, 1);
                 }
+
+                bool fileExists = listDir.Exists(x => x.pathSuffix == Path.GetFileName(p));
+                if (fileExists) p += "+";
 
                 //Console.WriteLine("PATH : " + p);
                 byte[] fileBuffer = System.IO.File.ReadAllBytes(filePathTemp);
@@ -230,7 +249,7 @@
                     HDFSResponse.FileGetStatus fs = await HadoopAPI.FileStatus(hadoopURL, p);
                     if (fs != null)
                     {
-                        fs.fileStatus.pathSuffix = p;
+                        fs.fileStatus.pathSuffix = Path.GetFileName(p);
                         //Console.WriteLine("fs : " + JsonConvert.SerializeObject(fs.fileStatus));
                         listDir.Add(fs.fileStatus);
                     }
@@ -238,7 +257,7 @@
 
                 File.Delete(filePathTemp);
 
-                status = $"Finished loading {file.Size} bytes from {file.Name}";
+                //status = $"Finished loading {file.Size} bytes from {file.Name}";
                 DeleteFile(file);
 
                 StateHasChanged();

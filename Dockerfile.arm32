@@ -1,63 +1,6 @@
-#FROM microsoft/aspnetcore-build:2 AS build-env
-#WORKDIR /source
-#COPY . .
-#RUN dotnet restore
-#RUN dotnet publish -c Release -o /app/
-
-
-# FROM mcr.microsoft.com/dotnet/core/sdk:2.2 as build-env
-# WORKDIR /source
-# COPY . .
-# RUN dotnet restore
-# RUN dotnet publish -c Release -o /app/
-
-
-# RUN mkdir /app/wwwroot/wwwimage/
-# RUN mkdir /app/wwwroot/wwwvideos/
-
-
-#FROM microsoft/dotnet:2.0-runtime-stretch-arm32v7
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2.5-stretch-slim-arm32v7
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.0-bionic-arm32v7
 ENV IS_DOCKER_ENV=true
 WORKDIR /app
 COPY . .
 
-# RUN rm -rf /app/wwwroot
-
-
-
-# RUN apk update
-# RUN apk add libgdiplus-dev fontconfig ttf-dejavu --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
-
-
-
-#In arm not found file
-#RUN ln -s /lib/x86_64-linux-gnu/libdl.so.2 /lib/x86_64-linux-gnu/libdl.so
-
-#COPY --from=0 /lib/x86_64-linux-gnu/libdl.so.2 /lib/libdl.so.2
-#COPY --from=0 /lib/arm-linux-gnueabihf/libdl-2.24.so /lib/libdl.so.2
-#RUN ln -s /lib/arm-linux-gnueabihf/libdl.so.2 /lib/libdl.so.2
-RUN ln -s /lib/arm-linux-gnueabihf/libdl-2.24.so /lib/libdl.so.2
-
-RUN apt-get -y update
-RUN apt-get -y upgrade
-
-RUN apt-get install -y --allow-unauthenticated \
-        libc6-dev \
-        libgdiplus \
-        libx11-dev \
-        ffmpeg
-
-# RUN set -x \
-#     && add-apt-repository ppa:mc3man/trusty-media \
-#     && apt-get update \
-#     && apt-get dist-upgrade \
-#     && apt-get install -y --no-install-recommends \
-#         ffmpeg
-
-
-# COPY --from=build-env /app .
-# COPY . .
-
-
-CMD ASPNETCORE_URLS=http://*:$PORT dotnet MovieTemplate.dll awakeservice=true videoprocessservice=true hadoopprocessservice=true > dotnet.log
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet aspcoreeasyupload.dll > dotnet.log
