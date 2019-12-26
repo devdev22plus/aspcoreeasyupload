@@ -25,18 +25,32 @@ public static class Common
 	}
 #endif
 
-	public static async Task CopyToAsyncWithCallback(this Stream source, Stream destination, Action<long> callback, CancellationToken cancellationToken = default(CancellationToken), int bufferSize = 0x1000)
+	public static async Task CopyToAsyncWithCallback(this Stream source, Stream destination, Action<long> callback, int bufferSize = 0x1000)
     {
         var buffer = new byte[bufferSize];
-        int bytesRead;
-        long totalRead = 0;
-        while ((bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
-        {
-            await destination.WriteAsync(buffer, 0, bytesRead, cancellationToken);
-            cancellationToken.ThrowIfCancellationRequested();
-            totalRead += bytesRead;
-            callback(totalRead);
-        }
+		var total = 0L;
+		int amtRead;
+		do
+		{
+			amtRead = 0;
+			while(amtRead < bufferSize)
+			{
+				var numBytes = await source.ReadAsync(buffer,
+													amtRead,
+													bufferSize - amtRead);
+				if(numBytes == 0)
+				{
+					break;
+				}
+				amtRead += numBytes;
+			}
+			total += amtRead;
+			await destination.WriteAsync(buffer, 0, amtRead);
+			if(callback != null)
+			{
+				callback(total);
+			}
+		} while( amtRead == bufferSize );
     }
 
 	public static async Task<string> GetMyIpAddress()

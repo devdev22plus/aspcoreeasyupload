@@ -204,8 +204,10 @@
                 string filePathTemp = System.IO.Path.GetTempFileName();
                 //Console.WriteLine("filePathTemp : " + filePathTemp);
 
-                using(var fileStream = File.Create(filePathTemp))
+                using(var fileStream = File.OpenWrite(filePathTemp))
                 {
+                    //Console.WriteLine(fileStream.Name);
+                    
                     await file.Data.CopyToAsyncWithCallback(fileStream, x => {
                         status = $"Progresss {x}/{file.Size} bytes from {file.Name}";
                         StateHasChanged();
