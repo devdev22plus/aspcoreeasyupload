@@ -112,6 +112,26 @@ public static class HadoopAPI
     }
 
     //Delete
+    public static async Task<bool> CreateFile(string hadoopURL, string filePath, string permission = "777")
+    {
+        bool ret = false;
+        HttpStatusCode responseHttpStatusCode = HttpStatusCode.NotFound;
+        await CallHadoop("PUT", $"{hadoopURL}webhdfs/v1/{filePath}?op=MKDIRS&permission={permission}", null, response => {
+            responseHttpStatusCode = response.StatusCode;
+            if (responseHttpStatusCode == HttpStatusCode.OK)
+            {
+                string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                //Console.WriteLine(jsonResponse);
+
+                dynamic jsonData = JsonConvert.DeserializeObject(jsonResponse);
+                ret = jsonData.boolean;
+            }
+        });
+
+        return ret;
+    }
+
+    //Delete
     public static async Task<bool> DeleteFile(string hadoopURL, string filePath)
     {
         HDFSResponse.DeleteFile deleteFile = null;
@@ -212,16 +232,17 @@ public static class HadoopAPI
     }
 
     //FileStatus
-    public static async Task<HDFSResponse.FileStatus> FileStatus(string hadoopURL, string filePath)
+    public static async Task<HDFSResponse.FileGetStatus> FileStatus(string hadoopURL, string filePath)
     {
-        HDFSResponse.FileStatus fileStatus = null;
+        HDFSResponse.FileGetStatus fileStatus = null;
         HttpStatusCode responseHttpStatusCode = HttpStatusCode.NotFound;
         await CallHadoop("GET", $"{hadoopURL}webhdfs/v1/{filePath}?op=GETFILESTATUS", null, response => {
             responseHttpStatusCode = response.StatusCode;
             if (responseHttpStatusCode == HttpStatusCode.OK)
             {
                 string jsonResponse = response.Content.ReadAsStringAsync().Result;
-                fileStatus = JsonConvert.DeserializeObject<HDFSResponse.FileStatus>(jsonResponse);
+                //Console.WriteLine(jsonResponse);
+                fileStatus = JsonConvert.DeserializeObject<HDFSResponse.FileGetStatus>(jsonResponse);
             }
         });
 

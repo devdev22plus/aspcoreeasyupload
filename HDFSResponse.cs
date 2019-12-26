@@ -54,6 +54,11 @@ namespace HDFSResponse
         public FileStatuses fileStatuses;
     }
 
+    public class FileGetStatus
+    {
+        public FileStatus fileStatus;
+    }
+
     public class FileChecksum
     {
         public string algorithm;
